@@ -25,8 +25,8 @@ next	;LDRB r2, [r0, #1]!						; Load first index of String1 into r2 and incremen
 		CMP r0, r6
 		CMPEQ r2, #116							; If r2 is the first index of String1, does r2 contain "t"? If so, branch to alert2
 		BEQ alert2
-		CMPNE r2, #32							; If r2 is not the first index of String1, does it contain " "? If so, branch to alert
-		BNE alert1
+		CMP r2, #32								; If r2 is not the first index of String1, does it contain " "? If so, branch to alert
+		BEQ alert1
 		STRB r2, [r1, #1]!						; Process of moving String1 into String2. Store valid byte of r2 into the incremented index after null space character of String1. This will be String2
 		CMP r2, #00								; Check if r2 has reached null character, meaning it has iterated over every element of String1
 		BNE next
@@ -49,7 +49,13 @@ alert3	LDRB r2, [r0, #1]!						; Load next index of String1 into r2 to check if 
 		BEQ alert4
 		BNE false1
 
-alert4	
+alert4	LDRB r2, [r0, #1]!
+		MOV r5, r0
+		CMP r2, #32
+		BEQ next
+		CMP r2, #0
+		BEQ loop
+		BNE false1
 
 false1	MOV r0, r4
 false2	LDRB r2, [r0, #1]!
@@ -74,7 +80,7 @@ loop	b	loop
 		
 		AREA proj1, DATA, READWRITE
 ;STRING1	DCB "and the man said they must go"		; String1
-STRING1	DCB "the boys the"								; String1
+STRING1	DCB "the the theyre boys the"								; String1
 EoS		DCB	0x00								; End of String1
 STRING2	space 0xFF								; Allocates 255 bytes for String2
 		END
