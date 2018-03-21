@@ -5,21 +5,14 @@
 		ADR r1, EoS								; Address of end of String1 into r1
 		ADR r12, STRING2
 		
-next	;LDRB r2, [r0, #1]!						; Load first index of String1 into r2 and increment
-		
-		; Check for substring " the "
-		;MOV r3, #32								; Move space ASCII character into r3
-		;CMP r3, #32
-		
-		
-		MOV r4, r0								; Take note of where we leave if we branch to alert1. r4 will store the returning point
+next	MOV r4, r0								; Take note of where we leave if we branch to alert1. r4 will store the returning point
 		MOV r5, r0								; Notes where we will exit FALSE loop
 		MOV r6, r0								; Notes beginning of String1 for reference
 		ADD r6, #1
 		
-		LDRB r2, [r0, #1]!
+		LDRB r2, [r0, #1]!						; Increment r0 via pre-index and load character into r2 for analysis
 		
-		CMP r2, #0
+		CMP r2, #0								; Checks whether we've reached the end of String1. If so, branch to infinite loop (finished)
 		BEQ loop
 		
 		CMP r0, r6
@@ -49,9 +42,11 @@ alert3	LDRB r2, [r0, #1]!						; Load next index of String1 into r2 to check if 
 		BEQ alert4
 		BNE false1
 
-alert4	LDRB r2, [r0, #1]!
-		MOV r5, r0
-		CMP r2, #32
+alert4	LDRB r2, [r0, #1]!						; Load next index of String1 into r2 to check if it is followed by " "
+		MOV r5, r0								; Notes where we will exit FALSE loop
+		CMP r2, #32								; Check if "e" is followed by " ". If so, " the " has been found. Replace this word with a " ".
+		MOVEQ r7, #32
+		STREQB r7,[r1, #1]!
 		BEQ next
 		CMP r2, #0
 		BEQ loop
@@ -64,23 +59,11 @@ false2	LDRB r2, [r0, #1]!
 		BNE false2
 		BEQ next
 
-
-
-		;MOV r3, #32							; Move space ASCII character into r3
-		;CMP r3, #32
-		;LDRBEQ r2, [r0, #1]!
-		;CMP  
-		
-		;BNE next		
-		
-		
-	
-		
 loop	b	loop
 		
 		AREA proj1, DATA, READWRITE
-;STRING1	DCB "and the man said they must go"		; String1
-STRING1	DCB "the the theyre boys the"								; String1
+STRING1	DCB "the"		; String1
+;STRING1	DCB "the the theyre boys the"								; String1
 EoS		DCB	0x00								; End of String1
 STRING2	space 0xFF								; Allocates 255 bytes for String2
 		END
